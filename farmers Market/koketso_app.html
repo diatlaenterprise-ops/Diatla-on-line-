@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmers Market · Green Connect</title>
+  <style>
+    /* ---------- GLOBAL ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background-color: #e6f7e6;  /* very light green background */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+    }
+
+    .profile-setup {
+      width: min(100%, 480px);
+      margin: auto;
+      padding: 28px;
+      background-color: #f0fcf0;
+      border: 1px solid #b8e0b8;
+      border-radius: 24px;
+      box-shadow: 0 8px 20px rgba(60, 100, 60, 0.1);
+    }
+
+    .login-welcome {
+      display: none;
+      width: min(100%, 480px);
+      margin: auto;
+      padding: 28px;
+      background-color: #f0fcf0;
+      border: 1px solid #b8e0b8;
+      border-radius: 24px;
+      box-shadow: 0 8px 20px rgba(60, 100, 60, 0.1);
+      text-align: center;
+    }
+
+    .login-welcome h1 {
+      color: #1e4a1e;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    .login-welcome p {
+      color: #4a6e4a;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .profile-setup h1 {
+      color: #1e4a1e;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    .profile-setup p {
+      color: #4a6e4a;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .profile-setup label {
+      display: block;
+      color: #1e4a1e;
+      font-weight: 600;
+      margin: 14px 0 6px;
+    }
+
+    .profile-setup input,
+    .profile-setup select,
+    .profile-setup textarea,
+    .profile-edit-form input,
+    .profile-edit-form select,
+    .profile-edit-form textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #b8e0b8;
+      border-radius: 12px;
+      background-color: #fff;
+      font-size: 1rem;
+    }
+
+    .profile-setup textarea,
+    .profile-edit-form textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .profile-setup .btn {
+      margin-top: 20px;
+    }
+
+    .profile-setup .farmer-fields[hidden],
+    .profile-edit-form .farmer-fields[hidden] {
+      display: none;
+    }
+
+    .profile-photo-preview {
+      width: 112px;
+      height: 112px;
+      margin: 8px 0 12px;
+      border: 1px solid #b8e0b8;
+      border-radius: 50%;
+      background-color: #d9f0d9;
+      object-fit: cover;
+    }
+
+    .profile-form-label {
+      display: block;
+      color: #1e4a1e;
+      font-weight: 600;
+      margin: 14px 0 6px;
+    }
+
+    .profile-form-help {
+      display: block;
+      color: #4a6e4a;
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    .area-picker {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .area-picker input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .area-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .area-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid #a8d0a8;
+      border-radius: 20px;
+      background: #e0f0e0;
+      color: #1e4a1e;
+      font-size: 0.9rem;
+    }
+
+    .area-chip button {
+      border: 0;
+      background: transparent;
+      color: #1e4a1e;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .profile-edit-form {
+      max-width: 560px;
+    }
+
+    .profile-edit-form .btn {
+      margin-top: 20px;
+    }
+
+    .profile-error {
+      color: #9b2525 !important;
+      margin: 12px 0 0 !important;
+    }
+
+    .profile-success {
+      color: #2b6e2b !important;
+      margin: 12px 0 0 !important;
+    }
+
+    .document-form {
+      display: grid;
+      gap: 14px;
+      max-width: 680px;
+    }
+
+    .document-form label {
+      display: block;
+      color: #1e4a1e;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .document-form input,
+    .document-form select,
+    .document-form textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #b8e0b8;
+      border-radius: 12px;
+      background: white;
+      font-size: 0.95rem;
+    }
+
+    .document-form textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    .document-form-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .document-item-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 2fr) minmax(70px, 0.7fr) minmax(100px, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+      margin: 10px 0;
+    }
+
+    .document-item-row .remove-item-btn {
+      padding: 9px 12px;
+      border: 1px solid #b8e0b8;
+      border-radius: 10px;
+      background: #fff;
+      color: #1e4a1e;
+      cursor: pointer;
+    }
+
+    .document-actions,
+    .saved-document-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .saved-documents {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .saved-document {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid #b8e0b8;
+      border-radius: 14px;
+      background: white;
+    }
+
+    .saved-document h3 {
+      color: #1e4a1e;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .saved-document p {
+      color: #4a6e4a;
+      font-size: 0.85rem;
+    }
+
+    .business-logo-preview {
+      width: 120px;
+      max-height: 96px;
+      margin: 8px 0 12px;
+      object-fit: contain;
+    }
+
+    .document-preview {
+      display: none;
+      margin-top: 24px;
+      padding: 28px;
+      background: white;
+      color: #222;
+      border: 1px solid #d5dfd5;
+      border-radius: 12px;
+    }
+
+    .document-preview.is-visible {
+      display: block;
+    }
+
+    .document-preview-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #6aa86a;
+    }
+
+    .document-preview-logo {
+      max-width: 130px;
+      max-height: 90px;
+      object-fit: contain;
+    }
+
+    .document-preview h2 {
+      color: #1e4a1e;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .document-preview h3 {
+      color: #1e4a1e;
+      margin: 22px 0 8px;
+    }
+
+    .document-preview p {
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .document-preview table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+    }
+
+    .document-preview th,
+    .document-preview td {
+      padding: 10px;
+      border-bottom: 1px solid #d5dfd5;
+      text-align: left;
+    }
+
+    .document-preview th:last-child,
+    .document-preview td:last-child {
+      text-align: right;
+    }
+
+    .document-preview-total {
+      margin: 16px 0 0 auto;
+      max-width: 260px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 16px 12px 30px;
+      }
+
+      .app-container {
+        width: min(100%, 760px);
+        border-radius: 22px;
+      }
+
+      .app-header {
+        padding: 14px 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .header-user-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .user-badge {
+        text-align: center;
+      }
+
+      .task-bar {
+        flex-wrap: wrap;
+      }
+
+      .task-tab {
+        flex: 1 1 33.33%;
+        min-width: 120px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .document-form-row,
+      .document-preview-header {
+        grid-template-columns: 1fr;
+      }
+
+      .document-preview-header {
+        display: grid;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .profile-setup,
+      .login-welcome {
+        padding: 22px 16px;
+        border-radius: 18px;
+      }
+
+      .app-header {
+        display: grid;
+        gap: 12px;
+      }
+
+      .app-header h1 {
+        font-size: 1.3rem;
+        justify-content: center;
+      }
+
+      .header-user-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .user-badge,
+      .logout-btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .task-bar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .task-tab {
+        flex: 1 1 50%;
+        min-width: 0;
+        padding: 12px 6px;
+        font-size: 0.8rem;
+      }
+
+      .panel {
+        padding: 14px;
+        min-height: auto;
+      }
+
+      .composer-row {
+        flex-direction: column;
+      }
+
+      .composer-avatar {
+        align-self: flex-start;
+      }
+
+      .composer-extra {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .composer-extra input,
+      .composer-extra .btn {
+        width: 100%;
+      }
+
+      .post-header {
+        flex-wrap: wrap;
+      }
+
+      .post-actions {
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .sale-item,
+      .saved-document {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .message-thread {
+        align-items: flex-start;
+      }
+
+      .thread-message {
+        max-width: 100%;
+      }
+
+      .document-form-row,
+      .document-item-row {
+        grid-template-columns: 1fr;
+      }
+
+      .area-picker {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .area-picker .btn-outline {
+        width: 100%;
+      }
+    }
+
+    @media print {
+      body {
+        display: block;
+        padding: 0;
+        background: white;
+      }
+
+      .app-container,
+      #documents.panel {
+        display: block;
+        width: 100%;
+        max-width: none;
+        border: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      #documents.panel {
+        padding: 0;
+      }
+
+      body * {
+        visibility: hidden;
+      }
+
+      .document-preview.is-visible,
+      .document-preview.is-visible * {
+        visibility: visible;
+      }
+
+      .document-preview.is-visible {
+        position: absolute;
+        inset: 0;
+        display: block;
+        margin: 0;
+        padding: 24px;
+        border: 0;
+      }
+    }
+
+    .app-container {
+      max-width: 800px;
+      width: 100%;
+      background-color: #f0fcf0;
+      border-radius: 32px 32px 24px 24px;
+      box-shadow: 0 8px 20px rgba(60, 100, 60, 0.1);
+      overflow: hidden;
+      border: 1px solid #b8e0b8;
+      display: none;
+    }
+
+    body.profile-ready .app-container {
+      display: block;
+    }
+
+    body.profile-ready .login-welcome,
+    body.profile-ready .profile-setup {
+      display: none;
+    }
+
+    body.returning-user .profile-setup {
+      display: none;
+    }
+
+    body.returning-user .login-welcome {
+      display: block;
+    }
+
+    /* ---------- HEADER ---------- */
+    .app-header {
+      background-color: #8fcb8f;
+      color: #1e3a1e;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #b0d9b0;
+    }
+
+    .app-header h1 {
+      font-size: 1.7rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-header h1 span {
+      font-size: 1.9rem;
+    }
+
+    .user-badge {
+      background-color: #d9f0d9;
+      padding: 8px 14px;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1e4a1e;
+      border: 1px solid #a8d0a8;
+    }
+
+    .header-user-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logout-btn {
+      padding: 8px 14px;
+      border: 1px solid #528a52;
+      border-radius: 40px;
+      background-color: #f0fcf0;
+      color: #1e4a1e;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background-color: #e0f0e0;
+    }
+
+    /* ---------- TASK BAR (TABS) ---------- */
+    .task-bar {
+      display: flex;
+      background-color: #c8e6c8;
+      border-bottom: 1px solid #a8d0a8;
+    }
+
+    .task-tab {
+      flex: 1;
+      padding: 15px 8px;
+      text-align: center;
+      font-weight: 600;
+      color: #2b5e2b;
+      background-color: #b8dfb8;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s, color 0.2s;
+      border-right: 1px solid #9bc89b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .task-tab:last-child {
+      border-right: none;
+    }
+
+    .task-tab.active {
+      background-color: #f0fcf0;
+      color: #0f3f0f;
+      border-bottom: 2px solid #6aa86a;
+      font-weight: 700;
+    }
+
+    .task-tab:hover {
+      background-color: #d0ebd0;
+    }
+
+    /* ---------- PANELS ---------- */
+    .panel {
+      display: none;
+      padding: 20px;
+      background-color: #f0fcf0;
+      min-height: 500px;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* ---------- TIMELINE ---------- */
+    .post-composer {
+      background-color: #ffffffd9;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 24px;
+      border: 1px solid #b8e0b8;
+      box-shadow: 0 2px 6px rgba(80, 120, 80, 0.05);
+    }
+
+    .composer-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .composer-avatar {
+      width: 48px;
+      height: 48px;
+      background-color: #b0d9b0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .composer-input {
+      flex: 1;
+    }
+
+    .composer-input textarea {
+      width: 100%;
+      border: 1px solid #b8e0b8;
+      border-radius: 16px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      resize: vertical;
+      background-color: #f9fff9;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .composer-input textarea:focus {
+      border-color: #6aa86a;
+      box-shadow: 0 0 0 3px rgba(106, 168, 106, 0.2);
+    }
+
+    .composer-extra {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .composer-extra input {
+      flex: 2;
+      min-width: 140px;
+      padding: 10px 14px;
+      border: 1px solid #b8e0b8;
+      border-radius: 30px;
+      background-color: #f9fff9;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .composer-extra input:focus {
+      border-color: #6aa86a;
+    }
+
+    .btn {
+      background-color: #6aa86a;
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #528a52;
+    }
+
+    .btn[hidden] {
+      display: none;
+    }
+
+    .btn:hover {
+      background-color: #528a52;
+    }
+
+    .btn-small {
+      padding: 6px 14px;
+      font-size: 0.8rem;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: #3a6e3a;
+      border: 1px solid #8fcb8f;
+    }
+
+    .btn-outline:hover {
+      background-color: #e0f0e0;
+    }
+
+    /* posts feed */
+    .feed {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .post-card {
+      background-color: #ffffff;
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid #b8e0b8;
+      box-shadow: 0 2px 8px rgba(60, 100, 60, 0.05);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .post-avatar {
+      width: 44px;
+      height: 44px;
+      background-color: #c8e6c8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .post-meta {
+      flex: 1;
+    }
+
+    .post-author {
+      font-weight: 700;
+      color: #1e4a1e;
+    }
+
+    .post-location {
+      font-size: 0.8rem;
+      color: #4a6e4a;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .post-time {
+      font-size: 0.7rem;
+      color: #7a9e7a;
+    }
+
+    .post-content {
+      margin-bottom: 14px;
+    }
+
+    .post-text {
+      font-size: 1rem;
+      color: #1e3a1e;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .post-image {
+      background-color: #d9f0d9;
+      border-radius: 16px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3a6e3a;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      border: 1px dashed #8fcb8f;
+      background-image: linear-gradient(145deg, #e0f5e0, #c8e6c8);
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 18px;
+      border-top: 1px solid #d0e8d0;
+      padding-top: 14px;
+      margin-top: 4px;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: #3a6e3a;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 30px;
+      transition: background 0.2s;
+    }
+
+    .action-btn:hover {
+      background-color: #e0f0e0;
+    }
+
+    .comment-section {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid #e0f0e0;
+    }
+
+    .comment {
+      background-color: #f5fff5;
+      padding: 8px 12px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #1e3a1e;
+      border-left: 3px solid #8fcb8f;
+    }
+
+    .comment-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .comment-input-row input {
+      flex: 1;
+      padding: 8px 14px;
+      border-radius: 30px;
+      border: 1px solid #b8e0b8;
+      background-color: #f9fff9;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    /* ---------- SALES HISTORY ---------- */
+    .sales-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .sale-item {
+      background-color: white;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid #b8e0b8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .sale-info h4 {
+      color: #1e4a1e;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .sale-info p {
+      font-size: 0.8rem;
+      color: #4a6e4a;
+    }
+
+    .sale-price {
+      font-weight: 700;
+      color: #2b6e2b;
+      background-color: #e0f0e0;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+    }
+
+    /* ---------- PRIVATE MESSAGES ---------- */
+    .messages-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message-thread {
+      background-color: white;
+      border-radius: 18px;
+      border: 1px solid #b8e0b8;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .message-thread:hover {
+      background-color: #eefbee;
+    }
+
+    .thread-avatar {
+      width: 52px;
+      height: 52px;
+      background-color: #c8e6c8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .thread-preview {
+      flex: 1;
+    }
+
+    .thread-name {
+      font-weight: 700;
+      color: #1e4a1e;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .thread-message {
+      font-size: 0.85rem;
+      color: #4a6e4a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 260px;
+    }
+
+    .thread-time {
+      font-size: 0.7rem;
+      color: #7a9e7a;
+    }
+
+    /* empty state / misc */
+    .empty-note {
+      color: #6a8e6a;
+      text-align: center;
+      padding: 30px 10px;
+      font-style: italic;
+    }
+
+    /* responsive */
+    @media (max-width: 550px) {
+      .task-tab { font-size: 0.8rem; padding: 12px 4px; }
+      .app-header h1 { font-size: 1.3rem; }
+      .composer-extra { flex-direction: column; align-items: stretch; }
+      .composer-extra .btn { align-self: flex-start; }
+      .document-form-row { grid-template-columns: 1fr; }
+      .document-item-row { grid-template-columns: 1fr 1fr; }
+      .saved-document { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="login-welcome">
+    <h1>Welcome back</h1>
+    <p id="welcomeName"></p>
+    <button class="btn" id="loginBtn" type="button">Log in</button>
+  </main>
+
+  <main class="profile-setup">
+    <h1>🌱 Create your profile</h1>
+    <p>Create a profile to join the Farmers Market and connect with your local community.</p>
+    <form id="profileForm">
+      <label for="profileName">Your name</label>
+      <input id="profileName" name="name" type="text" autocomplete="name" maxlength="80" required>
+
+      <label for="profileRole">I am a</label>
+      <select id="profileRole" name="role" required>
+        <option value="farmer">Farmer</option>
+        <option value="buyer">Buyer</option>
+      </select>
+
+      <div class="farmer-fields" id="createFarmerFields">
+        <label for="profileFarmName">Farm name</label>
+        <input id="profileFarmName" name="farmName" type="text" maxlength="100" placeholder="e.g., Green Valley Farm">
+
+        <label for="profileFarmInfo">About your farm</label>
+        <textarea id="profileFarmInfo" name="farmInfo" maxlength="500" placeholder="Tell buyers about your farm and produce"></textarea>
+
+        <label for="profilePhoto">Farm or profile photo</label>
+        <img id="createProfilePhotoPreview" class="profile-photo-preview" alt="Selected farm profile photo" hidden>
+        <input id="profilePhoto" name="photo" type="file" accept="image/*">
+        <span class="profile-form-help">Choose an image up to 1 MB.</span>
+      </div>
+
+      <label for="profileContact">Contact number</label>
+      <input id="profileContact" name="contact" type="tel" autocomplete="tel" maxlength="40" placeholder="e.g., +27 82 123 4567">
+
+      <label for="profileLocation">Farm or location</label>
+      <input id="profileLocation" name="location" type="text" maxlength="120" placeholder="e.g., Green Valley">
+
+      <label for="profileAreaInput">Areas you are interested in</label>
+      <div class="area-picker">
+        <input id="profileAreaInput" type="text" maxlength="80" placeholder="e.g., Cape Town">
+        <button class="btn btn-outline" id="addProfileArea" type="button">Add area</button>
+      </div>
+      <div class="area-chips" id="profileAreaChips" aria-live="polite"></div>
+      <span class="profile-form-help">Add one or more towns, cities, or regions.</span>
+
+      <button class="btn" type="submit">Create profile</button>
+      <p id="profileError" class="profile-error" role="alert" hidden></p>
+    </form>
+  </main>
+
+  <div class="app-container">
+    <!-- header -->
+    <header class="app-header">
+      <h1>
+        <span>🌱</span> Farmers Market
+      </h1>
+      <div class="header-user-controls">
+        <div class="user-badge" id="userBadge"></div>
+        <button class="logout-btn" id="logoutBtn" type="button">Log out</button>
+      </div>
+    </header>
+
+    <!-- task bar -->
+    <nav class="task-bar">
+      <button class="task-tab active" data-tab="timeline">🌾 Timeline</button>
+      <button class="task-tab" data-tab="sales">📋 Sales history</button>
+      <button class="task-tab" data-tab="messages">✉️ Messages</button>
+      <button class="task-tab" data-tab="documents">🧾 Quotes & invoices</button>
+      <button class="task-tab" data-tab="profile">👤 Profile</button>
+    </nav>
+
+    <!-- PANEL: TIMELINE -->
+    <section id="timeline" class="panel active">
+      <!-- composer -->
+      <div class="post-composer">
+        <div class="composer-row">
+          <div class="composer-avatar">🧑‍🌾</div>
+          <div class="composer-input">
+            <textarea id="postText" rows="2" placeholder="Share your fresh produce..."></textarea>
+            <div class="composer-extra">
+              <input type="text" id="postLocation" placeholder="📍 Farm location (e.g., Green Valley)">
+              <input type="text" id="postImageDesc" placeholder="📷 Photo description (e.g., basket of tomatoes)">
+              <button class="btn" id="postBtn">+ Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- feed -->
+      <div class="feed" id="feedContainer">
+        <!-- dynamic posts injected via JS, but we also have static for demo -->
+        <!-- Static post 1 -->
+        <div class="post-card" data-post-id="1">
+          <div class="post-header">
+            <div class="post-avatar">👨‍🌾</div>
+            <div class="post-meta">
+              <div class="post-author">Carlos M.</div>
+              <div class="post-location">📍 Sunny Acres Farm</div>
+              <div class="post-time">2 hours ago</div>
+            </div>
+          </div>
+          <div class="post-content">
+            <div class="post-text">Fresh organic tomatoes 🍅 just harvested! Perfect for salads.</div>
+            <div class="post-image">📸 (photo: basket of red tomatoes)</div>
+          </div>
+          <div class="post-actions">
+            <button class="action-btn like-btn">❤️ 12</button>
+            <button class="action-btn comment-btn">💬 3</button>
+            <button class="action-btn share-btn">↗️ Share</button>
+            <button class="action-btn message-btn">✉️ Message</button>
+          </div>
+          <div class="comment-section" style="display: none;">
+            <div class="comment">Sophie: Are these available for pickup tomorrow?</div>
+            <div class="comment">Carlos: Yes! 8am to 12pm 😊</div>
+            <div class="comment-input-row">
+              <input type="text" placeholder="Write a comment..." class="comment-input">
+              <button class="btn btn-small comment-submit">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Static post 2 -->
+        <div class="post-card" data-post-id="2">
+          <div class="post-header">
+            <div class="post-avatar">👩‍🌾</div>
+            <div class="post-meta">
+              <div class="post-author">Maria Silva</div>
+              <div class="post-location">📍 Hilltop Orchard</div>
+              <div class="post-time">5 hours ago</div>
+            </div>
+          </div>
+          <div class="post-content">
+            <div class="post-text">Sweet apples and pears 🍎🍐 available in bulk. Great for juice!</div>
+            <div class="post-image">📸 (photo: crates of apples)</div>
+          </div>
+          <div class="post-actions">
+            <button class="action-btn like-btn">❤️ 8</button>
+            <button class="action-btn comment-btn">💬 1</button>
+            <button class="action-btn share-btn">↗️ Share</button>
+            <button class="action-btn message-btn">✉️ Message</button>
+          </div>
+          <div class="comment-section" style="display: none;">
+            <div class="comment">Liam: Do you deliver to the city?</div>
+            <div class="comment-input-row">
+              <input type="text" placeholder="Write a comment..." class="comment-input">
+              <button class="btn btn-small comment-submit">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL: SALES HISTORY -->
+    <section id="sales" class="panel">
+      <h2 style="color:#1e4a1e; font-size:1.3rem; margin-bottom:6px;">📋 Recent sales</h2>
+      <p style="color:#4a6e4a; font-size:0.9rem; margin-bottom:16px;">Your sold produce and earnings</p>
+      <div class="sales-list">
+        <div class="sale-item">
+          <div class="sale-info">
+            <h4>🍅 Heirloom tomatoes (5 kg)</h4>
+            <p>Sold to: Green Bistro • 2 days ago</p>
+          </div>
+          <div class="sale-price">R 24,00</div>
+        </div>
+        <div class="sale-item">
+          <div class="sale-info">
+            <h4>🥕 Organic carrots (10 bunches)</h4>
+            <p>Sold to: Local Coop • 4 days ago</p>
+          </div>
+          <div class="sale-price">R 32,50</div>
+        </div>
+        <div class="sale-item">
+          <div class="sale-info">
+            <h4>🍓 Fresh strawberries (8 boxes)</h4>
+            <p>Sold to: Sweet Tooth Bakery • 1 week ago</p>
+          </div>
+          <div class="sale-price">R 48,00</div>
+        </div>
+        <div class="sale-item">
+          <div class="sale-info">
+            <h4>🌽 Sweet corn (dozen)</h4>
+            <p>Sold to: Farmer's Market stall • 1 week ago</p>
+          </div>
+          <div class="sale-price">R 18,00</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL: PRIVATE MESSAGES -->
+    <section id="messages" class="panel">
+      <h2 style="color:#1e4a1e; font-size:1.3rem; margin-bottom:6px;">✉️ Private messages</h2>
+      <p style="color:#4a6e4a; font-size:0.9rem; margin-bottom:16px;">Chat with buyers directly</p>
+      <div class="messages-container">
+        <div class="message-thread">
+          <div class="thread-avatar">👤</div>
+          <div class="thread-preview">
+            <div class="thread-name">
+              Sophie Chen
+              <span class="thread-time">10:32 AM</span>
+            </div>
+            <div class="thread-message">Hi! Are the tomatoes still available? I'd like 3 kg.</div>
+          </div>
+        </div>
+        <div class="message-thread">
+          <div class="thread-avatar">🧔</div>
+          <div class="thread-preview">
+            <div class="thread-name">
+              Mark Rivera
+              <span class="thread-time">Yesterday</span>
+            </div>
+            <div class="thread-message">Can you deliver to 5th street? I'll take 10 lbs of apples.</div>
+          </div>
+        </div>
+        <div class="message-thread">
+          <div class="thread-avatar">👩</div>
+          <div class="thread-preview">
+            <div class="thread-name">
+              Lisa Green
+              <span class="thread-time">Tuesday</span>
+            </div>
+            <div class="thread-message">Thanks for the carrots! They were delicious. I'll order more.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL: QUOTATIONS AND INVOICES -->
+    <section id="documents" class="panel">
+      <h2 style="color:#1e4a1e; font-size:1.3rem; margin-bottom:6px;">🧾 Quotes & invoices</h2>
+      <p style="color:#4a6e4a; font-size:0.9rem; margin-bottom:16px;">Create a branded, printable document for a buyer. Amounts are in South African rand (ZAR); VAT is not calculated.</p>
+      <form id="documentForm" class="document-form">
+        <div class="document-form-row">
+          <div>
+            <label for="documentType">Document type</label>
+            <select id="documentType" name="type">
+              <option value="quote">Quotation</option>
+              <option value="invoice">Invoice</option>
+            </select>
+          </div>
+          <div>
+            <label for="documentBuyer">Buyer / business name</label>
+            <input id="documentBuyer" name="buyer" type="text" maxlength="120" required>
+          </div>
+        </div>
+        <div class="document-form-row">
+          <div>
+            <label for="documentBuyerContact">Buyer contact (optional)</label>
+            <input id="documentBuyerContact" name="buyerContact" type="text" maxlength="120">
+          </div>
+          <div>
+            <label for="documentDate">Issue date</label>
+            <input id="documentDate" name="date" type="date" required>
+          </div>
+        </div>
+        <div class="document-form-row">
+          <div>
+            <label id="documentTermsLabel" for="documentTermsDate">Valid until</label>
+            <input id="documentTermsDate" name="termsDate" type="date" required>
+          </div>
+          <div>
+            <label for="documentReference">Reference (optional)</label>
+            <input id="documentReference" name="reference" type="text" maxlength="100">
+          </div>
+        </div>
+        <div>
+          <label>Items</label>
+          <div id="documentItems"></div>
+          <button class="btn btn-outline" id="addDocumentItem" type="button">+ Add item</button>
+        </div>
+        <div>
+          <label for="documentNotes">Notes / payment terms (optional)</label>
+          <textarea id="documentNotes" name="notes" maxlength="500" placeholder="Add delivery or payment notes"></textarea>
+        </div>
+        <div class="document-actions">
+          <button class="btn" type="submit">Create document</button>
+          <p id="documentError" class="profile-error" role="alert" hidden></p>
+        </div>
+      </form>
+      <h2 style="color:#1e4a1e; font-size:1.1rem; margin-top:28px;">Saved documents</h2>
+      <div id="savedDocuments" class="saved-documents"></div>
+      <article id="documentPreview" class="document-preview" aria-live="polite"></article>
+      <button class="btn" id="printDocumentBtn" type="button" hidden>Print / Save as PDF</button>
+    </section>
+
+    <!-- PANEL: FARM PROFILE -->
+    <section id="profile" class="panel">
+      <h2 style="color:#1e4a1e; font-size:1.3rem; margin-bottom:6px;">👤 Farm profile</h2>
+      <p style="color:#4a6e4a; font-size:0.9rem; margin-bottom:16px;">Manage your farm information and contact details.</p>
+      <form id="profileEditForm" class="profile-edit-form">
+        <label class="profile-form-label" for="editProfileName">Your name</label>
+        <input id="editProfileName" name="name" type="text" autocomplete="name" maxlength="80" required>
+
+        <label class="profile-form-label" for="editProfileRole">I am a</label>
+        <select id="editProfileRole" name="role" required>
+          <option value="farmer">Farmer</option>
+          <option value="buyer">Buyer</option>
+        </select>
+
+        <div class="farmer-fields" id="editFarmerFields">
+          <label class="profile-form-label" for="editBusinessName">Business / trading name</label>
+          <input id="editBusinessName" name="businessName" type="text" maxlength="120">
+
+          <label class="profile-form-label" for="editBusinessAddress">Business address</label>
+          <textarea id="editBusinessAddress" name="businessAddress" maxlength="300"></textarea>
+
+          <label class="profile-form-label" for="editBusinessEmail">Business email</label>
+          <input id="editBusinessEmail" name="businessEmail" type="email" autocomplete="email" maxlength="120">
+
+          <label class="profile-form-label" for="editBusinessLogo">Business logo</label>
+          <img id="businessLogoPreview" class="business-logo-preview" alt="Business logo" hidden>
+          <input id="editBusinessLogo" name="businessLogo" type="file" accept="image/*">
+          <span class="profile-form-help">Choose an image up to 200 KB. Leave empty to keep your current logo.</span>
+
+          <label class="profile-form-label" for="editFarmName">Farm name</label>
+          <input id="editFarmName" name="farmName" type="text" maxlength="100">
+
+          <label class="profile-form-label" for="editFarmInfo">About your farm</label>
+          <textarea id="editFarmInfo" name="farmInfo" maxlength="500"></textarea>
+
+          <label class="profile-form-label" for="editProfilePhoto">Farm or profile photo</label>
+          <img id="profilePhotoPreview" class="profile-photo-preview" alt="Farm profile photo" hidden>
+          <input id="editProfilePhoto" name="photo" type="file" accept="image/*">
+          <span class="profile-form-help">Choose an image up to 1 MB. Leave empty to keep your current photo.</span>
+        </div>
+
+        <label class="profile-form-label" for="editProfileContact">Contact number</label>
+        <input id="editProfileContact" name="contact" type="tel" autocomplete="tel" maxlength="40">
+
+        <label class="profile-form-label" for="editProfileLocation">Farm or location</label>
+        <input id="editProfileLocation" name="location" type="text" maxlength="120">
+
+        <label class="profile-form-label" for="editAreaInput">Areas you are interested in</label>
+        <div class="area-picker">
+          <input id="editAreaInput" type="text" maxlength="80" placeholder="e.g., Cape Town">
+          <button class="btn btn-outline" id="addEditArea" type="button">Add area</button>
+        </div>
+        <div class="area-chips" id="editAreaChips" aria-live="polite"></div>
+        <span class="profile-form-help">Add one or more towns, cities, or regions.</span>
+
+        <div class="farmer-fields" id="editBankFields">
+          <h3 style="color:#1e4a1e; margin-top:24px;">Bank details for documents</h3>
+          <label class="profile-form-label" for="editAccountHolder">Account holder</label>
+          <input id="editAccountHolder" name="accountHolder" type="text" maxlength="120" autocomplete="off">
+
+          <label class="profile-form-label" for="editBankName">Bank name</label>
+          <input id="editBankName" name="bankName" type="text" maxlength="100" autocomplete="off">
+
+          <label class="profile-form-label" for="editAccountNumber">Account number</label>
+          <input id="editAccountNumber" name="accountNumber" type="text" inputmode="numeric" maxlength="40" autocomplete="off">
+
+          <label class="profile-form-label" for="editBranchCode">Branch code</label>
+          <input id="editBranchCode" name="branchCode" type="text" inputmode="numeric" maxlength="20" autocomplete="off">
+        </div>
+
+        <button class="btn" type="submit">Save profile</button>
+        <p id="profileEditError" class="profile-error" role="alert" hidden></p>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- REQUIRED USER PROFILE ----------
+      const profileStorageKey = 'farmersMarketProfile';
+      const profileForm = document.getElementById('profileForm');
+      const profileError = document.getElementById('profileError');
+      const profileNameInput = document.getElementById('profileName');
+      const profileRoleInput = document.getElementById('profileRole');
+      const createFarmerFields = document.getElementById('createFarmerFields');
+      const profileFarmNameInput = document.getElementById('profileFarmName');
+      const profileFarmInfoInput = document.getElementById('profileFarmInfo');
+      const profilePhotoInput = document.getElementById('profilePhoto');
+      const createProfilePhotoPreview = document.getElementById('createProfilePhotoPreview');
+      const profileContactInput = document.getElementById('profileContact');
+      const profileLocationInput = document.getElementById('profileLocation');
+      const profileEditForm = document.getElementById('profileEditForm');
+      const profileEditError = document.getElementById('profileEditError');
+      const editProfileNameInput = document.getElementById('editProfileName');
+      const editProfileRoleInput = document.getElementById('editProfileRole');
+      const editFarmerFields = document.getElementById('editFarmerFields');
+      const editBankFields = document.getElementById('editBankFields');
+      const editBusinessNameInput = document.getElementById('editBusinessName');
+      const editBusinessAddressInput = document.getElementById('editBusinessAddress');
+      const editBusinessEmailInput = document.getElementById('editBusinessEmail');
+      const editBusinessLogoInput = document.getElementById('editBusinessLogo');
+      const businessLogoPreview = document.getElementById('businessLogoPreview');
+      const editFarmNameInput = document.getElementById('editFarmName');
+      const editFarmInfoInput = document.getElementById('editFarmInfo');
+      const editProfilePhotoInput = document.getElementById('editProfilePhoto');
+      const profilePhotoPreview = document.getElementById('profilePhotoPreview');
+      const editProfileContactInput = document.getElementById('editProfileContact');
+      const editProfileLocationInput = document.getElementById('editProfileLocation');
+      const profileAreaPicker = createAreaPicker(
+        document.getElementById('profileAreaInput'),
+        document.getElementById('addProfileArea'),
+        document.getElementById('profileAreaChips')
+      );
+      const editAreaPicker = createAreaPicker(
+        document.getElementById('editAreaInput'),
+        document.getElementById('addEditArea'),
+        document.getElementById('editAreaChips')
+      );
+      const editAccountHolderInput = document.getElementById('editAccountHolder');
+      const editBankNameInput = document.getElementById('editBankName');
+      const editAccountNumberInput = document.getElementById('editAccountNumber');
+      const editBranchCodeInput = document.getElementById('editBranchCode');
+      const userBadge = document.getElementById('userBadge');
+      const composerAvatar = document.querySelector('.composer-avatar');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const welcomeName = document.getElementById('welcomeName');
+      const loginBtn = document.getElementById('loginBtn');
+      const documentTab = document.querySelector('[data-tab="documents"]');
+      let currentProfile = null;
+
+      function updateFarmerFields(roleInput, fields) {
+        fields.hidden = roleInput.value !== 'farmer';
+      }
+
+      function createAreaPicker(input, addButton, chipContainer) {
+        let areas = [];
+
+        function render() {
+          chipContainer.replaceChildren();
+          areas.forEach(area => {
+            const chip = document.createElement('span');
+            chip.className = 'area-chip';
+            const name = document.createElement('span');
+            name.textContent = area;
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.textContent = '×';
+            remove.setAttribute('aria-label', `Remove ${area}`);
+            remove.addEventListener('click', () => {
+              areas = areas.filter(existing => existing !== area);
+              render();
+            });
+            chip.append(name, remove);
+            chipContainer.append(chip);
+          });
+        }
+
+        function addArea() {
+          const area = input.value.trim();
+          if (!area || areas.some(existing => existing.toLocaleLowerCase() === area.toLocaleLowerCase())) {
+            input.value = '';
+            return;
+          }
+          areas.push(area);
+          input.value = '';
+          render();
+        }
+
+        addButton.addEventListener('click', addArea);
+        input.addEventListener('keydown', event => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            addArea();
+          }
+        });
+
+        return {
+          getAreas: () => [...areas],
+          setAreas(values) {
+            areas = Array.isArray(values)
+              ? [...new Set(values
+                .filter(area => typeof area === 'string')
+                .map(area => area.trim())
+                .filter(Boolean))]
+              : [];
+            render();
+          }
+        };
+      }
+
+      function readPhotoFile(fileInput, existingPhoto, maxSizeBytes = 1024 * 1024) {
+        const file = fileInput.files[0];
+        if (!file) return Promise.resolve(existingPhoto || '');
+        if (!file.type.startsWith('image/')) {
+          return Promise.reject(new Error('Choose a valid image file.'));
+        }
+        if (file.size > maxSizeBytes) {
+          const maxSizeLabel = maxSizeBytes < 1024 * 1024
+            ? `${Math.floor(maxSizeBytes / 1024)} KB`
+            : '1 MB';
+          return Promise.reject(new Error(`The image must be ${maxSizeLabel} or smaller.`));
+        }
+
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.addEventListener('load', () => {
+            if (typeof reader.result === 'string') resolve(reader.result);
+            else reject(new Error('Unable to read the selected image.'));
+          });
+          reader.addEventListener('error', () => reject(new Error('Unable to read the selected image.')));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function normalizeProfile(profile) {
+        return {
+          name: profile.name.trim(),
+          role: profile.role,
+          businessName: typeof profile.businessName === 'string' ? profile.businessName : '',
+          businessAddress: typeof profile.businessAddress === 'string' ? profile.businessAddress : '',
+          businessEmail: typeof profile.businessEmail === 'string' ? profile.businessEmail : '',
+          businessLogo: typeof profile.businessLogo === 'string' && profile.businessLogo.startsWith('data:image/') ? profile.businessLogo : '',
+          farmName: typeof profile.farmName === 'string' ? profile.farmName : '',
+          farmInfo: typeof profile.farmInfo === 'string' ? profile.farmInfo : '',
+          photo: typeof profile.photo === 'string' && profile.photo.startsWith('data:image/') ? profile.photo : '',
+          contact: typeof profile.contact === 'string' ? profile.contact : '',
+          location: typeof profile.location === 'string' ? profile.location : '',
+          interestedAreas: Array.isArray(profile.interestedAreas)
+            ? [...new Set(profile.interestedAreas
+              .filter(area => typeof area === 'string')
+              .map(area => area.trim())
+              .filter(Boolean))]
+            : [],
+          accountHolder: typeof profile.accountHolder === 'string' ? profile.accountHolder : '',
+          bankName: typeof profile.bankName === 'string' ? profile.bankName : '',
+          accountNumber: typeof profile.accountNumber === 'string' ? profile.accountNumber : '',
+          branchCode: typeof profile.branchCode === 'string' ? profile.branchCode : ''
+        };
+      }
+
+      function populateProfileForm(profile) {
+        editProfileNameInput.value = profile.name;
+        editProfileRoleInput.value = profile.role;
+        editBusinessNameInput.value = profile.businessName;
+        editBusinessAddressInput.value = profile.businessAddress;
+        editBusinessEmailInput.value = profile.businessEmail;
+        editBusinessLogoInput.value = '';
+        businessLogoPreview.src = profile.businessLogo;
+        businessLogoPreview.hidden = !profile.businessLogo;
+        editFarmNameInput.value = profile.farmName;
+        editFarmInfoInput.value = profile.farmInfo;
+        editProfileContactInput.value = profile.contact;
+        editProfileLocationInput.value = profile.location;
+        editAreaPicker.setAreas(profile.interestedAreas);
+        editProfilePhotoInput.value = '';
+        profilePhotoPreview.src = profile.photo;
+        profilePhotoPreview.hidden = !profile.photo;
+        editAccountHolderInput.value = profile.accountHolder;
+        editBankNameInput.value = profile.bankName;
+        editAccountNumberInput.value = profile.accountNumber;
+        editBranchCodeInput.value = profile.branchCode;
+        updateFarmerFields(editProfileRoleInput, editFarmerFields);
+        updateFarmerFields(editProfileRoleInput, editBankFields);
+      }
+
+      function applyProfile(profile) {
+        currentProfile = normalizeProfile(profile);
+        populateProfileForm(currentProfile);
+        const avatar = profile.role === 'farmer' ? '👩‍🌾' : '🧑';
+        userBadge.textContent = `${avatar} ${currentProfile.name} (${currentProfile.role})`;
+        composerAvatar.textContent = avatar;
+        documentTab.hidden = currentProfile.role !== 'farmer';
+        document.body.classList.remove('returning-user');
+        document.body.classList.add('profile-ready');
+      }
+
+      function showLoginWelcome(profile) {
+        currentProfile = normalizeProfile(profile);
+        welcomeName.textContent = `Log in to continue as ${currentProfile.name}.`;
+        document.body.classList.remove('profile-ready');
+        document.body.classList.add('returning-user');
+      }
+
+      try {
+        const savedProfile = localStorage.getItem(profileStorageKey);
+        if (savedProfile) {
+          const profile = JSON.parse(savedProfile);
+          if (
+            profile &&
+            typeof profile.name === 'string' &&
+            profile.name.trim() &&
+            (profile.role === 'farmer' || profile.role === 'buyer')
+          ) {
+            showLoginWelcome(profile);
+          } else {
+            profileError.textContent = 'Your saved profile is invalid. Please create a new profile.';
+            profileError.hidden = false;
+          }
+        }
+      } catch (error) {
+        profileError.textContent = 'Unable to load your saved profile. Check your browser storage and reload.';
+        profileError.hidden = false;
+      }
+
+      profileRoleInput.addEventListener('change', () => updateFarmerFields(profileRoleInput, createFarmerFields));
+      editProfileRoleInput.addEventListener('change', () => {
+        updateFarmerFields(editProfileRoleInput, editFarmerFields);
+        updateFarmerFields(editProfileRoleInput, editBankFields);
+      });
+      updateFarmerFields(profileRoleInput, createFarmerFields);
+
+      profileForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        profileError.hidden = true;
+        try {
+          const profile = {
+            name: profileNameInput.value.trim(),
+            role: profileRoleInput.value,
+            farmName: profileFarmNameInput.value.trim(),
+            farmInfo: profileFarmInfoInput.value.trim(),
+            photo: await readPhotoFile(profilePhotoInput, ''),
+            contact: profileContactInput.value.trim(),
+            location: profileLocationInput.value.trim(),
+            interestedAreas: profileAreaPicker.getAreas()
+          };
+          if (!profile.name) {
+            profileNameInput.focus();
+            return;
+          }
+          localStorage.setItem(profileStorageKey, JSON.stringify(profile));
+          applyProfile(profile);
+        } catch (error) {
+          profileError.textContent = error instanceof Error
+            ? error.message
+            : 'Unable to save your profile. Check your browser storage and try again.';
+          profileError.hidden = false;
+        }
+      });
+
+      profileEditForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        profileEditError.hidden = true;
+        try {
+          const profile = {
+            name: editProfileNameInput.value.trim(),
+            role: editProfileRoleInput.value,
+            businessName: editBusinessNameInput.value.trim(),
+            businessAddress: editBusinessAddressInput.value.trim(),
+            businessEmail: editBusinessEmailInput.value.trim(),
+            businessLogo: await readPhotoFile(editBusinessLogoInput, currentProfile.businessLogo, 200 * 1024),
+            farmName: editFarmNameInput.value.trim(),
+            farmInfo: editFarmInfoInput.value.trim(),
+            photo: await readPhotoFile(editProfilePhotoInput, currentProfile.photo),
+            contact: editProfileContactInput.value.trim(),
+            location: editProfileLocationInput.value.trim(),
+            interestedAreas: editAreaPicker.getAreas(),
+            accountHolder: editAccountHolderInput.value.trim(),
+            bankName: editBankNameInput.value.trim(),
+            accountNumber: editAccountNumberInput.value.trim(),
+            branchCode: editBranchCodeInput.value.trim()
+          };
+          if (!profile.name) {
+            editProfileNameInput.focus();
+            return;
+          }
+          localStorage.setItem(profileStorageKey, JSON.stringify(profile));
+          applyProfile(profile);
+          profileEditError.classList.remove('profile-error');
+          profileEditError.classList.add('profile-success');
+          profileEditError.textContent = 'Profile saved.';
+          profileEditError.hidden = false;
+        } catch (error) {
+          profileEditError.classList.add('profile-error');
+          profileEditError.classList.remove('profile-success');
+          profileEditError.textContent = error instanceof Error
+            ? error.message
+            : 'Unable to save your profile. Check your browser storage and try again.';
+          profileEditError.hidden = false;
+        }
+      });
+
+      editProfilePhotoInput.addEventListener('change', async () => {
+        profileEditError.hidden = true;
+        try {
+          const photo = await readPhotoFile(editProfilePhotoInput, currentProfile.photo);
+          profilePhotoPreview.src = photo;
+          profilePhotoPreview.hidden = !photo;
+        } catch (error) {
+          profileEditError.textContent = error.message;
+          profileEditError.hidden = false;
+          editProfilePhotoInput.value = '';
+        }
+      });
+
+      editBusinessLogoInput.addEventListener('change', async () => {
+        profileEditError.hidden = true;
+        try {
+          const logo = await readPhotoFile(editBusinessLogoInput, currentProfile.businessLogo, 200 * 1024);
+          businessLogoPreview.src = logo;
+          businessLogoPreview.hidden = !logo;
+        } catch (error) {
+          profileEditError.textContent = error.message;
+          profileEditError.hidden = false;
+          editBusinessLogoInput.value = '';
+        }
+      });
+
+      profilePhotoInput.addEventListener('change', async () => {
+        profileError.hidden = true;
+        try {
+          const photo = await readPhotoFile(profilePhotoInput, '');
+          createProfilePhotoPreview.src = photo;
+          createProfilePhotoPreview.hidden = !photo;
+        } catch (error) {
+          profileError.textContent = error.message;
+          profileError.hidden = false;
+          profilePhotoInput.value = '';
+        }
+      });
+
+      loginBtn.addEventListener('click', () => {
+        if (currentProfile) applyProfile(currentProfile);
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        if (currentProfile) showLoginWelcome(currentProfile);
+      });
+
+      // ---------- TAB SWITCHING ----------
+      const tabs = document.querySelectorAll('.task-tab');
+      const panels = {
+        timeline: document.getElementById('timeline'),
+        sales: document.getElementById('sales'),
+        messages: document.getElementById('messages'),
+        documents: document.getElementById('documents'),
+        profile: document.getElementById('profile')
+      };
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          // remove active from all tabs
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          // hide all panels
+          Object.values(panels).forEach(p => p.classList.remove('active'));
+          // show current
+          const tabName = tab.dataset.tab;
+          if (panels[tabName]) panels[tabName].classList.add('active');
+        });
+      });
+
+      // ---------- FARMER QUOTATIONS AND INVOICES ----------
+      const documentsStorageKey = 'farmersMarketDocuments';
+      const documentForm = document.getElementById('documentForm');
+      const documentTypeInput = document.getElementById('documentType');
+      const documentTermsLabel = document.getElementById('documentTermsLabel');
+      const documentTermsDateInput = document.getElementById('documentTermsDate');
+      const documentItems = document.getElementById('documentItems');
+      const documentError = document.getElementById('documentError');
+      const savedDocuments = document.getElementById('savedDocuments');
+      const documentPreview = document.getElementById('documentPreview');
+      const printDocumentBtn = document.getElementById('printDocumentBtn');
+      let documentRecords = [];
+      let activeDocument = null;
+
+      function localDateInputValue(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-ZA', {
+          style: 'currency',
+          currency: 'ZAR'
+        }).format(amount);
+      }
+
+      function formatDocumentDate(value) {
+        if (!value) return '';
+        const [year, month, day] = value.split('-').map(Number);
+        return new Intl.DateTimeFormat('en-ZA', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'UTC'
+        }).format(new Date(Date.UTC(year, month - 1, day)));
+      }
+
+      function appendTextElement(parent, tagName, text, className) {
+        const element = document.createElement(tagName);
+        element.textContent = text;
+        if (className) element.className = className;
+        parent.append(element);
+        return element;
+      }
+
+      function createDocumentItemRow(item) {
+        const row = document.createElement('div');
+        row.className = 'document-item-row';
+
+        const description = document.createElement('input');
+        description.type = 'text';
+        description.className = 'item-description';
+        description.placeholder = 'Produce / service';
+        description.setAttribute('aria-label', 'Item description');
+        description.maxLength = 160;
+        description.required = true;
+        description.value = item ? item.description : '';
+
+        const quantity = document.createElement('input');
+        quantity.type = 'number';
+        quantity.className = 'item-quantity';
+        quantity.setAttribute('aria-label', 'Quantity');
+        quantity.min = '0.001';
+        quantity.step = 'any';
+        quantity.required = true;
+        quantity.value = item ? String(item.quantity) : '1';
+
+        const price = document.createElement('input');
+        price.type = 'number';
+        price.className = 'item-price';
+        price.setAttribute('aria-label', 'Unit price in ZAR');
+        price.min = '0';
+        price.step = '0.01';
+        price.required = true;
+        price.placeholder = 'Unit price (ZAR)';
+        price.value = item ? String(item.unitPrice) : '';
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'remove-item-btn';
+        remove.textContent = 'Remove';
+        remove.setAttribute('aria-label', 'Remove item');
+        remove.addEventListener('click', () => {
+          if (documentItems.children.length > 1) row.remove();
+        });
+
+        row.append(description, quantity, price, remove);
+        return row;
+      }
+
+      function renderSavedDocuments() {
+        savedDocuments.replaceChildren();
+        if (!documentRecords.length) {
+          appendTextElement(savedDocuments, 'p', 'No quotations or invoices created yet.', 'empty-note');
+          return;
+        }
+
+        documentRecords.forEach(record => {
+          const card = document.createElement('div');
+          card.className = 'saved-document';
+          const summary = document.createElement('div');
+          appendTextElement(summary, 'h3', `${record.type === 'quote' ? 'Quotation' : 'Invoice'} ${record.number}`);
+          appendTextElement(summary, 'p', `${record.buyer} · ${formatDocumentDate(record.date)} · ${formatCurrency(record.total)}`);
+          const actions = document.createElement('div');
+          actions.className = 'saved-document-actions';
+          const viewButton = document.createElement('button');
+          viewButton.type = 'button';
+          viewButton.className = 'btn btn-outline';
+          viewButton.dataset.documentAction = 'view';
+          viewButton.dataset.documentId = record.id;
+          viewButton.textContent = 'View / print';
+          actions.append(viewButton);
+          card.append(summary, actions);
+          savedDocuments.append(card);
+        });
+      }
+
+      function renderDocumentPreview(record) {
+        documentPreview.replaceChildren();
+        const header = document.createElement('header');
+        header.className = 'document-preview-header';
+        const business = document.createElement('div');
+        const businessName = record.seller.businessName || record.seller.farmName || record.seller.name;
+        appendTextElement(business, 'h3', businessName);
+        const sellerDetails = [
+          record.seller.name,
+          record.seller.businessAddress,
+          record.seller.location,
+          record.seller.contact,
+          record.seller.businessEmail
+        ].filter(Boolean);
+        appendTextElement(business, 'p', sellerDetails.join('\n'));
+        if (record.seller.businessLogo && record.seller.businessLogo.startsWith('data:image/')) {
+          const logo = document.createElement('img');
+          logo.className = 'document-preview-logo';
+          logo.src = record.seller.businessLogo;
+          logo.alt = `${businessName} logo`;
+          header.append(logo);
+        }
+        header.append(business);
+        documentPreview.append(header);
+
+        const title = appendTextElement(
+          documentPreview,
+          'h2',
+          record.type === 'quote' ? 'Quotation' : 'Invoice'
+        );
+        title.style.marginTop = '20px';
+        appendTextElement(documentPreview, 'p', `${record.number} · Issued ${formatDocumentDate(record.date)}`);
+        appendTextElement(documentPreview, 'p', `${record.type === 'quote' ? 'Valid until' : 'Payment due'}: ${formatDocumentDate(record.termsDate)}`);
+        if (record.reference) appendTextElement(documentPreview, 'p', `Reference: ${record.reference}`);
+        appendTextElement(documentPreview, 'h3', 'Bill to');
+        appendTextElement(documentPreview, 'p', [record.buyer, record.buyerContact].filter(Boolean).join('\n'));
+
+        const table = document.createElement('table');
+        const tableHead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        ['Description', 'Quantity', 'Unit price (ZAR)', 'Amount (ZAR)'].forEach(label => {
+          appendTextElement(headerRow, 'th', label);
+        });
+        tableHead.append(headerRow);
+        table.append(tableHead);
+        const tableBody = document.createElement('tbody');
+        record.items.forEach(item => {
+          const row = document.createElement('tr');
+          appendTextElement(row, 'td', item.description);
+          appendTextElement(row, 'td', String(item.quantity));
+          appendTextElement(row, 'td', formatCurrency(item.unitPrice));
+          appendTextElement(row, 'td', formatCurrency(item.quantity * item.unitPrice));
+          tableBody.append(row);
+        });
+        table.append(tableBody);
+        documentPreview.append(table);
+        appendTextElement(documentPreview, 'p', `Total: ${formatCurrency(record.total)}`, 'document-preview-total');
+        if (record.notes) {
+          appendTextElement(documentPreview, 'h3', 'Notes');
+          appendTextElement(documentPreview, 'p', record.notes);
+        }
+        const bankDetails = [
+          record.seller.accountHolder && `Account holder: ${record.seller.accountHolder}`,
+          record.seller.bankName && `Bank: ${record.seller.bankName}`,
+          record.seller.accountNumber && `Account number: ${record.seller.accountNumber}`,
+          record.seller.branchCode && `Branch code: ${record.seller.branchCode}`
+        ].filter(Boolean);
+        if (bankDetails.length) {
+          appendTextElement(documentPreview, 'h3', 'Banking details');
+          appendTextElement(documentPreview, 'p', bankDetails.join('\n'));
+        }
+        documentPreview.classList.add('is-visible');
+        printDocumentBtn.hidden = false;
+        activeDocument = record;
+        documentPreview.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+
+      function setDocumentTermsLabel() {
+        documentTermsLabel.textContent = documentTypeInput.value === 'quote' ? 'Valid until' : 'Payment due date';
+      }
+
+      const issueDate = new Date();
+      document.getElementById('documentDate').value = localDateInputValue(issueDate);
+      const termsDate = new Date(issueDate);
+      termsDate.setDate(termsDate.getDate() + 30);
+      documentTermsDateInput.value = localDateInputValue(termsDate);
+      documentItems.append(createDocumentItemRow());
+      documentTypeInput.addEventListener('change', setDocumentTermsLabel);
+      document.getElementById('addDocumentItem').addEventListener('click', () => {
+        documentItems.append(createDocumentItemRow());
+      });
+
+      try {
+        const storedDocuments = localStorage.getItem(documentsStorageKey);
+        if (storedDocuments) {
+          const parsedDocuments = JSON.parse(storedDocuments);
+          if (!Array.isArray(parsedDocuments) || parsedDocuments.some(record => (
+            !record ||
+            typeof record.id !== 'string' ||
+            !['quote', 'invoice'].includes(record.type) ||
+            typeof record.number !== 'string' ||
+            typeof record.buyer !== 'string' ||
+            !Array.isArray(record.items) ||
+            !record.seller ||
+            !Number.isFinite(record.total)
+          ))) {
+            throw new Error('Saved documents are invalid.');
+          }
+          documentRecords = parsedDocuments;
+        }
+      } catch (error) {
+        documentError.textContent = 'Unable to load saved documents. Check browser storage before creating more.';
+        documentError.hidden = false;
+      }
+      renderSavedDocuments();
+
+      documentForm.addEventListener('submit', event => {
+        event.preventDefault();
+        documentError.hidden = true;
+        if (!currentProfile || currentProfile.role !== 'farmer') {
+          documentError.textContent = 'Only farmer profiles can create quotations and invoices.';
+          documentError.hidden = false;
+          return;
+        }
+        const items = Array.from(documentItems.querySelectorAll('.document-item-row')).map(row => ({
+          description: row.querySelector('.item-description').value.trim(),
+          quantity: Number(row.querySelector('.item-quantity').value),
+          unitPrice: Number(row.querySelector('.item-price').value)
+        }));
+        if (!document.getElementById('documentBuyer').value.trim()) {
+          documentError.textContent = 'Enter the buyer or business name.';
+          documentError.hidden = false;
+          return;
+        }
+        if (items.some(item => !item.description || !Number.isFinite(item.quantity) || item.quantity <= 0 || !Number.isFinite(item.unitPrice) || item.unitPrice < 0)) {
+          documentError.textContent = 'Enter a description, positive quantity, and valid non-negative unit price for every item.';
+          documentError.hidden = false;
+          return;
+        }
+        if (documentTermsDateInput.value < document.getElementById('documentDate').value) {
+          documentError.textContent = 'The validity or due date cannot be earlier than the issue date.';
+          documentError.hidden = false;
+          return;
+        }
+
+        const type = documentTypeInput.value;
+        const date = document.getElementById('documentDate').value;
+        const dateSequence = documentRecords.filter(record => record.type === type && record.date === date).length + 1;
+        const prefix = type === 'quote' ? 'QUO' : 'INV';
+        const record = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          type,
+          number: `${prefix}-${date.replaceAll('-', '')}-${String(dateSequence).padStart(3, '0')}`,
+          buyer: document.getElementById('documentBuyer').value.trim(),
+          buyerContact: document.getElementById('documentBuyerContact').value.trim(),
+          date,
+          termsDate: documentTermsDateInput.value,
+          reference: document.getElementById('documentReference').value.trim(),
+          notes: document.getElementById('documentNotes').value.trim(),
+          items,
+          total: Math.round(items.reduce((sum, item) => sum + Math.round(item.quantity * item.unitPrice * 100) / 100, 0) * 100) / 100,
+          seller: {
+            name: currentProfile.name,
+            role: currentProfile.role,
+            businessName: currentProfile.businessName,
+            businessAddress: currentProfile.businessAddress,
+            businessEmail: currentProfile.businessEmail,
+            businessLogo: currentProfile.businessLogo,
+            farmName: currentProfile.farmName,
+            location: currentProfile.location,
+            contact: currentProfile.contact,
+            accountHolder: currentProfile.accountHolder,
+            bankName: currentProfile.bankName,
+            accountNumber: currentProfile.accountNumber,
+            branchCode: currentProfile.branchCode
+          }
+        };
+
+        try {
+          const updatedRecords = [record, ...documentRecords];
+          localStorage.setItem(documentsStorageKey, JSON.stringify(updatedRecords));
+          documentRecords = updatedRecords;
+        } catch (error) {
+          documentError.textContent = 'Unable to save this document. Browser storage may be full; try a smaller logo or photo.';
+          documentError.hidden = false;
+          return;
+        }
+        renderSavedDocuments();
+        renderDocumentPreview(record);
+      });
+
+      savedDocuments.addEventListener('click', event => {
+        const button = event.target.closest('[data-document-action="view"]');
+        if (!button) return;
+        const record = documentRecords.find(item => item.id === button.dataset.documentId);
+        if (record) renderDocumentPreview(record);
+      });
+
+      printDocumentBtn.addEventListener('click', () => {
+        if (activeDocument) window.print();
+      });
+
+      // ---------- ADD NEW POST (timeline) ----------
+      const postBtn = document.getElementById('postBtn');
+      const feedContainer = document.getElementById('feedContainer');
+      const postText = document.getElementById('postText');
+      const postLocation = document.getElementById('postLocation');
+      const postImageDesc = document.getElementById('postImageDesc');
+
+      // helper to create a new post element
+      function createPostElement(text, location, imageDesc) {
+        const postId = 'post-' + Date.now() + Math.random().toString(36).substr(2, 5);
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.dataset.postId = postId;
+
+        const avatarEmoji = currentProfile.role === 'farmer' ? '👩‍🌾' : '🧑';
+
+        postCard.innerHTML = `
+          <div class="post-header">
+            <div class="post-avatar">${avatarEmoji}</div>
+            <div class="post-meta">
+              <div class="post-author"></div>
+              <div class="post-location">📍 ${location || 'My farm'}</div>
+              <div class="post-time">Just now</div>
+            </div>
+          </div>
+          <div class="post-content">
+            <div class="post-text">${text}</div>
+            <div class="post-image">📸 (${imageDesc || 'fresh produce photo'})</div>
+          </div>
+          <div class="post-actions">
+            <button class="action-btn like-btn">❤️ 0</button>
+            <button class="action-btn comment-btn">💬 0</button>
+            <button class="action-btn share-btn">↗️ Share</button>
+            <button class="action-btn message-btn">✉️ Message</button>
+          </div>
+          <div class="comment-section" style="display: none;">
+            <div class="comment-input-row">
+              <input type="text" placeholder="Write a comment..." class="comment-input">
+              <button class="btn btn-small comment-submit">Send</button>
+            </div>
+          </div>
+        `;
+        postCard.querySelector('.post-author').textContent = `${currentProfile.name} (you)`;
+        postCard.querySelector('.post-location').textContent = `📍 ${location || currentProfile.location || 'Location not provided'}`;
+        postCard.querySelector('.post-text').textContent = text;
+        postCard.querySelector('.post-image').textContent = `📸 (${imageDesc || 'fresh produce photo'})`;
+        return postCard;
+      }
+
+      // add post function
+      function addNewPost() {
+        const text = postText.value.trim();
+        if (!text) {
+          alert('Please write something about your produce.');
+          return;
+        }
+        const location = postLocation.value.trim() || currentProfile.location || 'Location not provided';
+        const imageDesc = postImageDesc.value.trim() || 'fresh produce';
+
+        const newPost = createPostElement(text, location, imageDesc);
+        // Insert at top of feed (after composer, but before existing posts)
+        // feedContainer is the container; we want to prepend inside it
+        feedContainer.prepend(newPost);
+
+        // Clear inputs
+        postText.value = '';
+        postLocation.value = '';
+        postImageDesc.value = '';
+
+        // attach event listeners to the new post's buttons
+        attachPostEventListeners(newPost);
+      }
+
+      postBtn.addEventListener('click', addNewPost);
+
+      // ---------- EVENT DELEGATION FOR EXISTING & NEW POSTS ----------
+      function attachPostEventListeners(postElement) {
+        // Like button
+        const likeBtn = postElement.querySelector('.like-btn');
+        if (likeBtn) {
+          likeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const text = this.textContent;
+            const match = text.match(/❤️ (\d+)/);
+            if (match) {
+              let count = parseInt(match[1], 10);
+              count++;
+              this.textContent = `❤️ ${count}`;
+            } else {
+              this.textContent = `❤️ 1`;
+            }
+          });
+        }
+
+        // Comment button (toggle comment section)
+        const commentBtn = postElement.querySelector('.comment-btn');
+        const commentSection = postElement.querySelector('.comment-section');
+        if (commentBtn && commentSection) {
+          commentBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (commentSection.style.display === 'none' || commentSection.style.display === '') {
+              commentSection.style.display = 'block';
+            } else {
+              commentSection.style.display = 'none';
+            }
+          });
+        }
+
+        // Share button (simple alert)
+        const shareBtn = postElement.querySelector('.share-btn');
+        if (shareBtn) {
+          shareBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            alert('🔗 Post shared with your network!');
+          });
+        }
+
+        // Message button (simulate private message)
+        const messageBtn = postElement.querySelector('.message-btn');
+        if (messageBtn) {
+          messageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            alert('✉️ Opening private message with this farmer...');
+            // Optionally switch to messages tab? Let's just alert.
+          });
+        }
+
+        // Comment submit (inside comment section)
+        const commentSubmit = postElement.querySelector('.comment-submit');
+        const commentInput = postElement.querySelector('.comment-input');
+        if (commentSubmit && commentInput) {
+          commentSubmit.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const commentText = commentInput.value.trim();
+            if (!commentText) return;
+            // Find the container to add comment (before the input row)
+            const commentSection = this.closest('.comment-section');
+            const newComment = document.createElement('div');
+            newComment.className = 'comment';
+            newComment.textContent = `You: ${commentText}`;
+            // Insert before the input row
+            const inputRow = commentSection.querySelector('.comment-input-row');
+            commentSection.insertBefore(newComment, inputRow);
+            commentInput.value = '';
+            // update comment count
+            const commentBtn = postElement.querySelector('.comment-btn');
+            if (commentBtn) {
+              const match = commentBtn.textContent.match(/💬 (\d+)/);
+              let count = match ? parseInt(match[1], 10) : 0;
+              count++;
+              commentBtn.textContent = `💬 ${count}`;
+            }
+          });
+        }
+      }
+
+      // Attach listeners to static posts on page load
+      document.querySelectorAll('.post-card').forEach(post => {
+        attachPostEventListeners(post);
+      });
+
+      // Also handle existing comment toggles for static posts (some already have comment sections)
+      // The above attachment covers them because .post-card includes static ones.
+
+      // ---------- EXTRA: comment toggles for static posts already work via the attach function.
+      // But for post 1 and 2, the comment buttons are already bound. Fine.
+
+      // ---------- DEMO: LIKE BUTTONS ON STATIC POSTS (already bound through attachPostEventListeners)
+      // and we also need to bind the "comment-submit" inside static comment sections.
+      // attachPostEventListeners already does that.
+
+      // ---------- FIX: static posts with comment sections that are hidden need commentBtn toggling
+      // already covered.
+
+      // ---------- INIT: ensure all post cards have listeners (already done)
+
+      // ---------- Add message interaction for message threads ----------
+      document.querySelectorAll('.message-thread').forEach(thread => {
+        thread.addEventListener('click', () => {
+          alert('💬 Opening private conversation...');
+        });
+      });
+
+      // ---------- small polish: like button count update on static post 1 & 2 already works
+      // Let's also handle the case where like button text initially "❤️ 12" - we parse properly.
+
+      // Additional: Make the "Message" button in post actions do something more relevant.
+      // For static posts, they are already attached via attachPostEventListeners.
+
+      // ---------- ensure that all existing posts (including static) have proper comment button toggling
+      // (re-run just to be safe, but it's already done)
+      // Also update comment count for static posts when adding comment.
+
+      // final: prevent form submission on enter in comment inputs (optional)
+      document.querySelectorAll('.comment-input').forEach(input => {
+        input.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const submitBtn = input.closest('.comment-input-row')?.querySelector('.comment-submit');
+            if (submitBtn) submitBtn.click();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
